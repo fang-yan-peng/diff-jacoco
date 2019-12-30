@@ -277,8 +277,8 @@ public class ReportGenerator {
 
 通过率概览：
 
-![图片](https://github.com/512433465/JacocoTest/blob/master/Jacocorep1.png)
+![图片](https://inside-git.01zhuanche.com/component/sq-jacoco/blob/master/report1.png)
 
 覆盖的代码显示为绿色, 未覆盖的代码显示为红色
 
-![图片](https://github.com/512433465/JacocoTest/blob/master/Jacocorep2.png)
+![图片](https://inside-git.01zhuanche.com/component/sq-jacoco/blob/master/report2.png)
