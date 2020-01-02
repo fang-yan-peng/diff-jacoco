@@ -145,7 +145,7 @@ final class SourceHighlighter {
                                     CoverageBuilder.project, classPath, pair.getMethodName());
                         } else if (Styles.FULLY_COVERED.equals(type)
                                 || Styles.PARTLY_COVERED.equals(type)) {
-                            //修改覆盖率
+                            //修改覆盖率，覆盖率修改后不准了，因为原框架是按照字节码指令统计的，现在是按照源码的行数统计的。
                             pair.updateCoverCounter();
                         }
                         boolean flag = false;
