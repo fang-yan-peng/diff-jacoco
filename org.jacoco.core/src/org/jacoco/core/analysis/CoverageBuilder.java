@@ -57,7 +57,7 @@ public class CoverageBuilder implements ICoverageVisitor {
 
     public static String project;
 
-    public static void  init(String mysqlJdbcUrl, String userName, String password, String title) {
+    public static void init(String mysqlJdbcUrl, String userName, String password, String title) {
         if (coverageRecordDao == null) {
             synchronized (CoverageBuilder.class) {
                 if (coverageRecordDao == null) {
@@ -236,6 +236,6 @@ public class CoverageBuilder implements ICoverageVisitor {
             return null;
         }
         return new MethodCoverPair(methodInfo.getMethodName(),
-                methodInfo.md5, belongMethodCoverage.getMethodCounter().getCoveredRatio());
+                methodInfo.md5, classCoverage, belongMethodCoverage);
     }
 }

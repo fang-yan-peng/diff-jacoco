@@ -143,6 +143,10 @@ final class SourceHighlighter {
                             //@todo 优化一个方法只删除一次
                             CoverageBuilder.coverageRecordDao.deletePreRecord(
                                     CoverageBuilder.project, classPath, pair.getMethodName());
+                        } else if (Styles.FULLY_COVERED.equals(type)
+                                || Styles.PARTLY_COVERED.equals(type)) {
+                            //修改覆盖率
+                            pair.updateCoverCounter();
                         }
                         boolean flag = false;
                         List<int[]> addLines = classInfo.getAddLines();

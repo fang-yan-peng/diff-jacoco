@@ -176,6 +176,11 @@ public abstract class CounterImpl implements ICounter {
 		return missed;
 	}
 
+	public void updateCover(int cnt) {
+		missed -= cnt;
+		covered += cnt;
+	}
+
 	public double getCoveredRatio() {
 		return (double) covered / (missed + covered);
 	}
