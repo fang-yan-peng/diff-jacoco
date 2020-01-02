@@ -25,7 +25,7 @@ import org.jacoco.core.tools.ExecFileLoader;
  * <code>tcpserver</code> and requests execution data. The collected data is
  * dumped to a local file.
  *
- * --git_workdir=xx  --current-branch=xx --compare-branch=xx (--current-tag=xx --compare-tag=xx)
+ * --git_workdir=xx  --branch=xx --compare-branch=xx (--tag=xx --compare-tag=xx)
  * --source-dirs=xx,xx,xxxx --class-dirs=scs,sdca,sssss --remote-host=xxxxxx --remote-port=8044
  * --exec-dir=xx --report-dir=xxx --mysql-host=xxx --mysql-port=3306 --mysql-user=root
  * --mysql-password=1234
@@ -41,7 +41,7 @@ public final class ExecutionDataClient {
     private boolean append;
 
     public ExecutionDataClient(File destFile, String address, int port) {
-        this(true, false, destFile, address, port, 10, true);
+        this(true, false, destFile, address, port, 5, true);
     }
 
     public ExecutionDataClient(boolean dump, boolean reset, File destFile, String address, int

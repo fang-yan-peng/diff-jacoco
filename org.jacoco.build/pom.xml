@@ -344,19 +344,19 @@
           <artifactId>maven-jar-plugin</artifactId>
           <version>2.3.1</version>
         </plugin>
-        <plugin>
+        <!--<plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <!--
+          &lt;!&ndash;
           Do not upgrade to 3.1.0 because it has troubles with "Automatic-Module-Name"
           See https://issues.apache.org/jira/browse/MJAVADOC-588
-          -->
+          &ndash;&gt;
           <version>3.0.1</version>
           <configuration>
             <quiet>true</quiet>
             <detectOfflineLinks>false</detectOfflineLinks>
           </configuration>
-        </plugin>
+        </plugin>-->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-plugin-plugin</artifactId>
@@ -555,7 +555,7 @@
         </executions>
       </plugin>
 
-      <plugin>
+      <!--<plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
@@ -592,7 +592,7 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin>-->
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -901,7 +901,7 @@
             </executions>
           </plugin>
           <!-- Generates Javadoc -->
-          <plugin>
+          <!--<plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <executions>
@@ -912,7 +912,7 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
+          </plugin>-->
         </plugins>
       </build>
     </profile>

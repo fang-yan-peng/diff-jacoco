@@ -103,7 +103,7 @@ public class SourceHighlighterTest {
 
 	@Test
 	public void testHighlightNone() throws Exception {
-		sourceHighlighter.highlight(parent, source.getLine(1), 1);
+		sourceHighlighter.highlight(parent, source.getLine(1), 1, null);
 		final Document doc = parseDoc();
 		assertEquals("", htmlSupport.findStr(doc, "//pre"));
 	}
@@ -112,7 +112,7 @@ public class SourceHighlighterTest {
 	public void testHighlightBranchesFC() throws Exception {
 		source.increment(CounterImpl.COUNTER_0_1, CounterImpl.getInstance(0, 5),
 				1);
-		sourceHighlighter.highlight(parent.pre(null), source.getLine(1), 1);
+		sourceHighlighter.highlight(parent.pre(null), source.getLine(1), 1, null);
 		final Document doc = parseDoc();
 		assertEquals("fc bfc", htmlSupport.findStr(doc, "//pre/span/@class"));
 		assertEquals("All 5 branches covered.",
@@ -123,7 +123,7 @@ public class SourceHighlighterTest {
 	public void testHighlightBranchesPC() throws Exception {
 		source.increment(CounterImpl.COUNTER_0_1, CounterImpl.getInstance(2, 3),
 				1);
-		sourceHighlighter.highlight(parent.pre(null), source.getLine(1), 1);
+		sourceHighlighter.highlight(parent.pre(null), source.getLine(1), 1, null);
 		final Document doc = parseDoc();
 		assertEquals("pc bpc", htmlSupport.findStr(doc, "//pre/span/@class"));
 		assertEquals("2 of 5 branches missed.",
@@ -134,7 +134,7 @@ public class SourceHighlighterTest {
 	public void testHighlightBranchesNC() throws Exception {
 		source.increment(CounterImpl.COUNTER_0_1, CounterImpl.getInstance(5, 0),
 				1);
-		sourceHighlighter.highlight(parent.pre(null), source.getLine(1), 1);
+		sourceHighlighter.highlight(parent.pre(null), source.getLine(1), 1, null);
 		final Document doc = parseDoc();
 		assertEquals("pc bnc", htmlSupport.findStr(doc, "//pre/span/@class"));
 		assertEquals("All 5 branches missed.",

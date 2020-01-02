@@ -24,8 +24,8 @@
       <filtered>true</filtered>
     </fileSet>
     <fileSet>
-      <directory>${basedir}/src/org/jacoco/examples</directory>
-      <outputDirectory>/examples/java</outputDirectory>
+      <directory>${basedir}/src/org/jacoco/startup</directory>
+      <outputDirectory>/startup/java</outputDirectory>
       <fileMode>0644</fileMode>
       <directoryMode>0755</directoryMode>
     </fileSet>

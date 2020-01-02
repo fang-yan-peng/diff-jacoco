@@ -186,7 +186,7 @@
         </dependencies>
       </plugin>
 
-      <plugin>
+      <!--<plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <executions>
@@ -211,7 +211,7 @@
               <use>true</use>
               <version>false</version>
               <groups>
-                <!-- Note: using org.jacoco.core.* for packages would omit the org.jacoco.core package but using org.jacoco* will include it. -->
+                &lt;!&ndash; Note: using org.jacoco.core.* for packages would omit the org.jacoco.core package but using org.jacoco* will include it. &ndash;&gt;
                 <group>
                   <title>Bundle org.jacoco.core</title>
                   <packages>org.jacoco.core*</packages>
@@ -234,7 +234,7 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin>-->
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>

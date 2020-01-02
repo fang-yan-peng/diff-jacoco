@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+
+    <id>${project.artifactId}-assembly-${project.version}</id>
+
+    <!-- basedir -->
+    <baseDirectory>org.jacoco.startup-${project.version}</baseDirectory>
+
+    <!-- don't need the file's base dirs -->
+    <!--<includeBaseDirectory>false</includeBaseDirectory>-->
+
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+
+    <files>
+
+        <!-- conf files -->
+        <file>
+            <source>scripts/jacoco.conf</source>
+            <outputDirectory>conf</outputDirectory>
+        </file>
+
+        <!-- bin files -->
+        <file>
+            <source>scripts/jacoco.sh</source>
+            <outputDirectory>bin</outputDirectory>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0755</fileMode>
+        </file>
+
+        <file>
+            <source>target/org.jacoco.startup-0.8.4.jar</source>
+            <outputDirectory>lib</outputDirectory>
+        </file>
+    </files>
+
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+</assembly>

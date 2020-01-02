@@ -53,22 +53,30 @@ public class CoverageBuilder implements ICoverageVisitor {
 
     public static Map<String, ClassInfo> classInfos;
 
-    public static CoverageRecordDao coverageRecordDao;
+    public static volatile CoverageRecordDao coverageRecordDao;
 
     public static String project;
 
-    static {
-        HikariConfig config = new HikariConfig();
-        config.setDriverClassName("com.mysql.jdbc.Driver");
-        config.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/store?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8");
-        config.setMaximumPoolSize(10);
-        config.setMinimumIdle(5);
-        config.setUsername("yanpengfang");
-        config.setPassword("272777475");
-        config.setConnectionTimeout(3000);
-        config.setPoolName("JacocoCoverage");
-        Mango mango = Mango.newInstance(new HikariDataSource(config));
-        coverageRecordDao = mango.create(CoverageRecordDao.class);
+    public static void  init(String mysqlJdbcUrl, String userName, String password, String title) {
+        if (coverageRecordDao == null) {
+            synchronized (CoverageBuilder.class) {
+                if (coverageRecordDao == null) {
+                    HikariConfig config = new HikariConfig();
+                    config.setDriverClassName("com.mysql.jdbc.Driver");
+                    /*config.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/store?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8");*/
+                    config.setJdbcUrl(mysqlJdbcUrl);
+                    config.setMaximumPoolSize(10);
+                    config.setMinimumIdle(5);
+                    config.setUsername(userName);
+                    config.setPassword(password);
+                    config.setConnectionTimeout(3000);
+                    config.setPoolName("JacocoCoverage");
+                    Mango mango = Mango.newInstance(new HikariDataSource(config));
+                    coverageRecordDao = mango.create(CoverageRecordDao.class);
+                    project = title;
+                }
+            }
+        }
     }
 
     /**
@@ -76,8 +84,8 @@ public class CoverageBuilder implements ICoverageVisitor {
      *
      */
     public CoverageBuilder() {
-        this.classes = new HashMap<>();
-        this.sourcefiles = new HashMap<>();
+        classes = new HashMap<>();
+        sourcefiles = new HashMap<>();
         classInfos = null;
     }
 
@@ -87,8 +95,8 @@ public class CoverageBuilder implements ICoverageVisitor {
      * @param branchName new test branch name
      */
     public CoverageBuilder(String gitPath, String branchName) {
-        this.classes = new HashMap<>();
-        this.sourcefiles = new HashMap<>();
+        classes = new HashMap<>();
+        sourcefiles = new HashMap<>();
         classInfos = converToMap(CodeDiff.diffBranchToBranch(gitPath, branchName, CodeDiff.MASTER));
 
     }
@@ -105,8 +113,8 @@ public class CoverageBuilder implements ICoverageVisitor {
      * @param oldBranchName oldBranchName
      */
     public CoverageBuilder(String gitPath, String newBranchName, String oldBranchName) {
-        this.classes = new HashMap<>();
-        this.sourcefiles = new HashMap<>();
+        classes = new HashMap<>();
+        sourcefiles = new HashMap<>();
         classInfos = converToMap(CodeDiff.diffBranchToBranch(gitPath, newBranchName, oldBranchName));
     }
 
@@ -118,8 +126,8 @@ public class CoverageBuilder implements ICoverageVisitor {
      * @param oldTag old Tag
      */
     public CoverageBuilder(String gitPath, String branchName, String newTag, String oldTag) {
-        this.classes = new HashMap<>();
-        this.sourcefiles = new HashMap<>();
+        classes = new HashMap<>();
+        sourcefiles = new HashMap<>();
         classInfos = converToMap(CodeDiff.diffTagToTag(gitPath, branchName, newTag, oldTag));
 
     }
@@ -161,7 +169,7 @@ public class CoverageBuilder implements ICoverageVisitor {
      * @return collection of classes with non-matching execution data
      */
     public Collection<IClassCoverage> getNoMatchClasses() {
-        final Collection<IClassCoverage> result = new ArrayList<IClassCoverage>();
+        final Collection<IClassCoverage> result = new ArrayList<>();
         for (final IClassCoverage c : classes.values()) {
             if (c.isNoMatch()) {
                 result.add(c);
@@ -230,9 +238,4 @@ public class CoverageBuilder implements ICoverageVisitor {
         return new MethodCoverPair(methodInfo.getMethodName(),
                 methodInfo.md5, belongMethodCoverage.getMethodCounter().getCoveredRatio());
     }
-
-    public static void setProject(String title) {
-        project = title;
-    }
-
 }

@@ -24,254 +24,38 @@ JaCoCo二次开发基于Git分支差分实现增量代码覆盖率
 
 - 使用方法：
 
-  ##### 一，Jacoco包的配置(具体配置百度Jacoco的Tomcat配置)
+  ##### 一，Jacoco包的配置
 
-  ###### 1，自己动手模式：下载我的代码，执行mvn clean package -Dmaven.javadoc.test=true -Dmaven.test
-  .skip=true自行打包。注意事项IDE下载后，在IDE中执行maven打包命令可能不成功。建议在命令行中执行maven打包命令。打包成功后，用官网包lib/jacocoagent.jar 替换自己新打包生成的jacocoagent.jar文件，否则可能引起Tomcat无法启动。
+  ###### 1，执行mvn clean install -Dmaven.javadoc.test=true -Dmaven.test.skip=true
+  自行打包。注意事项IDE下载后，在IDE中执行maven打包命令可能不成功。建议在命令行中执行maven打包命令。打包成功后，会在 JacocoPlus/org.jacoco
+  .startup/target目录下生成org.jacoco.startup-0.8.4.tar.gz。解压后会用三个目录，分别是bin、lib和conf。其中conf/jacoc
+  .conf文件是jacoco运行所需要的配置信息，如数据库的jdbcUrl、用户名密码和堆栈大小等。
+  
+  ###### 2，执行bin目录下jacoco.sh，以tag比较为例
+   jacoco.sh --git-work-dir /Users/yanpengfang/sqyc/ai-charge --branch master --tag jacoco_1 
+   --compare-tag jacoco_3 --report-dir /Users/yanpengfang/Desktop/sq_jacoco/coveragereport --source-dirs /Users/yanpengfang/sqyc/ai-charge/charge-api/src/main/java,/Users/yanpengfang/sqyc/ai-charge/charge-core/src/main/java --class-dirs /Users/yanpengfang/sqyc/ai-charge/charge-api/target/classes,/Users/yanpengfang/sqyc/ai-charge/charge-core/target/classes --remote-host localhost --remote-port 8044 --exec-dir /Users/yanpengfang/Desktop/sq_jacoco
 
-#####      二，代码差分比较分支说明
-​     以这个测试代码为例,假设daily为变更后要Release的代码，master分支为基线分支。测试的目的是想测试新开发的代码也即daily分支的代码是否全部已测试覆盖。我们测试时把daily下载后打包发布完成测试（在第一步Jacoco已经再Tomcat下配置好的情况下）。
+  #####  二，代码差分比较分支说明
+   ###### 1，基于分支的比较
+   --branch 指定当前代码分支， --compare-branch 指定要对比的的代码分支，如果不指定默认为master。
+   ###### 2，基于tag的比较
+   --branch 指定哪个分支上的tag， --tag 当前tag，--compare-tag 指定要对比的tag。
+  ##### 三，参数说明
+  * git-work-dir 指定git的工作目录
+  * report-dir 生成报告的目录
+  * source-dirs 源码目录，多个目录用逗号分隔
+  * class-dirs 字节码目录，多个目录用逗号分隔
+  * remote-host jacoco的agent运行的地址
+  * remote-port jacoco的agent运行的端口号
+  * exec-dir exec文件生成的目录，如果不指定默认是report-dir指定的目录/exec。
+  * branch 当前代码分支
+  * compare-branch 要对比的分支
+  * tag 当前tag
+  * compare-tag 要对比的tag
 
-#####      三，下载jacoco.exec（这里主要考虑到集成到Devops平台，通过代码获取）
-
-```java
-package org.jacoco.startup;
-
-import static java.lang.String.format;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-
-import org.jacoco.core.tools.ExecDumpClient;
-import org.jacoco.core.tools.ExecFileLoader;
-
-/**
- * This example connects to a coverage agent that run in output mode
- * <code>tcpserver</code> and requests execution data. The collected data is
- * dumped to a local file.
- *
- * --git_workdir=xx  --current-branch=xx --compare-branch=xx (--current-tag=xx --compare-tag=xx)
- * --source-dirs=xx,xx,xxxx --class-dirs=scs,sdca,sssss --remote-host=xxxxxx --remote-port=8044
- * --exec-dir=xx --report-dir=xxx --mysql-host=xxx --mysql-port=3306 --mysql-user=root
- * --mysql-password=1234
- */
-public final class ExecutionDataClient {
-
-    private boolean dump;
-    private boolean reset;
-    private File destFile;
-    private String address;
-    private int port;
-    private int retryCount;
-    private boolean append;
-
-    public ExecutionDataClient(File destFile, String address, int port) {
-        this(true, false, destFile, address, port, 10, true);
-    }
-
-    public ExecutionDataClient(boolean dump, boolean reset, File destFile, String address, int
-            port, int retryCount, boolean append) {
-        this.dump = dump;
-        this.reset = reset;
-        this.destFile = destFile;
-        this.address = address;
-        this.port = port;
-        this.retryCount = retryCount;
-        this.append = append;
-    }
-
-    public void dump() {
-        if (port <= 0) {
-            throw new IllegalArgumentException("Invalid port value");
-        }
-        if (dump && destFile == null) {
-            throw new IllegalArgumentException(
-                    "Destination file is required when dumping execution data");
-        }
-
-        final ExecDumpClient client = new ExecDumpClient() {
-            @Override
-            protected void onConnecting(final InetAddress address,
-                    final int port) {
-                System.out.println(format("Connecting to %s:%d", address, port));
-            }
-
-            @Override
-            protected void onConnectionFailure(final IOException exception) {
-                exception.printStackTrace();
-            }
-        };
-        client.setDump(dump);
-        client.setReset(reset);
-        client.setRetryCount(retryCount);
-
-        try {
-            final ExecFileLoader loader = client.dump(address, port);
-            if (dump) {
-                System.out.println(format("Dumping execution data to %s",
-                        destFile.getAbsolutePath()));
-
-                loader.save(destFile, append);
-            }
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Starts the execution data request.
-     *
-     * @param args
-     * @throws IOException
-     */
-    public static void main(final String[] args) throws IOException {
-        ExecutionDataClient client = new ExecutionDataClient(
-                new File("/Users/yanpengfang/Desktop/sq_jacoco/jacoco-client.exec"),
-                "localhost",
-                8044);
-        client.dump();
-    }
-}
 
 ```
-这样就非常方便的不停服务的情况下，去导出exec文件了。
-
-##### 四，基于Git分支差分解析jacoco.exec生成报告，并且根据之前存储报告信息只生成增量方法报告。
-
-```java
-package org.jacoco.startup;
-
-import java.io.File;
-import java.io.IOException;
-
-import org.jacoco.core.analysis.Analyzer;
-import org.jacoco.core.analysis.CoverageBuilder;
-import org.jacoco.core.analysis.IBundleCoverage;
-import org.jacoco.core.tools.ExecFileLoader;
-import org.jacoco.report.DirectorySourceFileLocator;
-import org.jacoco.report.FileMultiReportOutput;
-import org.jacoco.report.IReportVisitor;
-import org.jacoco.report.html.HTMLFormatter;
-
-/**
- * This example creates a HTML report for eclipse like projects based on a
- * single execution data store called jacoco.exec. The report contains no
- * grouping information.
- *
- * The class files under test must be compiled with debug information, otherwise
- * source highlighting will not work.
- */
-public class ReportGenerator {
-
-    private final String title;
-
-    private final File executionDataFile;
-    private final File classesDirectory;
-    private final File sourceDirectory;
-    private final File reportDirectory;
-
-    private ExecFileLoader execFileLoader;
-
-    /**
-     * Create a new generator based for the given project.
-     *
-     * @param projectDirectory
-     */
-    public ReportGenerator(final File projectDirectory) {
-        this.title = projectDirectory.getName();
-        this.executionDataFile = new File(
-                "/Users/yanpengfang/Desktop/sq_jacoco/jacoco-client.exec");
-        this.classesDirectory = new File(projectDirectory, "target/classes");
-        this.sourceDirectory = new File(projectDirectory, "src/main/java");
-        this.reportDirectory = new File("/Users/yanpengfang/Desktop/sq_jacoco/coveragereport");
-    }
-
-    /**
-     * Create the report.
-     *
-     * @throws IOException
-     */
-    public void create() throws IOException {
-
-        // Read the jacoco.exec file. Multiple data files could be merged
-        // at this point
-        loadExecutionData();
-
-        // Run the structure analyzer on a single class folder to build up
-        // the coverage model. The process would be similar if your classes
-        // were in a jar file. Typically you would create a bundle for each
-        // class folder and each jar you want in your report. If you have
-        // more than one bundle you will need to add a grouping node to your
-        // report
-        final IBundleCoverage bundleCoverage = analyzeStructure();
-
-        createReport(bundleCoverage);
-
-    }
-
-    private void createReport(final IBundleCoverage bundleCoverage)
-            throws IOException {
-
-        // Create a concrete report visitor based on some supplied
-        // configuration. In this case we use the defaults
-        final HTMLFormatter htmlFormatter = new HTMLFormatter();
-        final IReportVisitor visitor = htmlFormatter
-                .createVisitor(new FileMultiReportOutput(reportDirectory));
-
-        // Initialize the report with all of the execution and session
-        // information. At this point the report doesn't know about the
-        // structure of the report being created
-        visitor.visitInfo(execFileLoader.getSessionInfoStore().getInfos(),
-                execFileLoader.getExecutionDataStore().getContents());
-
-        // Populate the report structure with the bundle coverage information.
-        // Call visitGroup if you need groups in your report.
-        visitor.visitBundle(bundleCoverage, new DirectorySourceFileLocator(
-                sourceDirectory, "utf-8", 4));
-
-        // Signal end of structure information to allow report to write all
-        // information out
-        visitor.visitEnd();
-
-    }
-
-    private void loadExecutionData() throws IOException {
-        execFileLoader = new ExecFileLoader();
-        execFileLoader.load(executionDataFile);
-    }
-
-    private IBundleCoverage analyzeStructure() throws IOException {
-        final CoverageBuilder coverageBuilder = new CoverageBuilder(
-                "/Users/yanpengfang/sqyc/ai-charge", "jacoco_test");
-        CoverageBuilder.setProject(title);
-        final Analyzer analyzer = new Analyzer(
-                execFileLoader.getExecutionDataStore(), coverageBuilder);
-
-        analyzer.analyzeAll(classesDirectory);
-        return coverageBuilder.getBundle(title);
-    }
-
-    /**
-     * Starts the report generation process
-     *
-     * @param args
-     *            Arguments to the application. This will be the location of the
-     *            eclipse projects that will be used to generate reports for
-     * @throws IOException
-     */
-    public static void main(final String[] args) throws IOException {
-        for (int i = 0; i < args.length; i++) {
-            final ReportGenerator generator = new ReportGenerator(new File(
-                    args[i]));
-            generator.create();
-        }
-    }
-
-}
-
-```
-执行完后就可以生成报告了。通过第一步，第二步结合，就可以随时导出Ecec文件，生成报告，查看测试覆盖情况了。那种需要启停服务的
+执行完后就可以生成报告了。就可以随时导出Ecec文件，生成报告，查看测试覆盖情况了。
 
 ##### 五 生成的差分报告展示
 
