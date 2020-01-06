@@ -51,6 +51,10 @@ JaCoCo二次开发基于Git分支差分实现增量代码覆盖率
   * compare-branch 要对比的分支
   * tag 当前tag
   * compare-tag 要对比的tag
+  #### 四，代码颜色说明
+  * 红色 未覆盖的代码
+  * 绿色 覆盖的代码
+  * 白色 分支对比或者tag对比没有发生变化的代码，一般不用关注
 
 执行完后就可以生成报告了。就可以随时导出Ecec文件，生成报告，查看测试覆盖情况了。
 
@@ -60,6 +64,6 @@ JaCoCo二次开发基于Git分支差分实现增量代码覆盖率
 
 ![图片](https://inside-git.01zhuanche.com/component/sq-jacoco/blob/master/report1.png)
 
-覆盖的代码显示为绿色, 未覆盖的代码显示为红色
+覆盖的代码显示为绿色, 未覆盖的代码显示为红色, 白色的代码是没有发生更改的。
 
 ![图片](https://inside-git.01zhuanche.com/component/sq-jacoco/blob/master/report2.png)
