@@ -23,7 +23,8 @@ JaCoCo二次开发基于Git分支差分实现增量代码覆盖率
 2. 获取基线提交与被测提交之间的差异代码；
 3. 对差异代码进行解析，切割为更小的颗粒度，我们选择方法作为最小纬度；
 4. 改造 JaCoCo ，使它支持仅对差异代码生成覆盖率报告；
-![图片](https://inside-git.01zhuanche.com/component/sq-jacoco/blob/master/jacoco_archive2.jpeg)
+
+![图片](https://github.com/fang-yan-peng/diff-jacoco/blob/master/jacoco_archive2.jpeg)
 
 ### 一、原理
  通过使用org.eclipse.jgit比较新旧分支代码差分，取得变更行信息，生成报告时高亮线上变更行信息，未检出变更行不做处理。从而达到，增量显示代码覆盖率的目的。当然当不传代码分支时默认展示全量覆盖率。测试过的代码报告会存入mysql中，如果更改某类中的方法内容，不会影响同类中其他未更改方法的测试报告。
@@ -58,8 +59,13 @@ JaCoCo二次开发基于Git分支差分实现增量代码覆盖率
   );
   
   #### 3，执行bin目录下jacoco.sh，以tag比较为例
-   ./jacoco.sh --git-work-dir /Users/yanpengfang/sqyc/ai-charge --branch master --tag jacoco_1 
-   --compare-tag jacoco_3 --report-dir /Users/yanpengfang/Desktop/sq_jacoco/coveragereport --source-dirs /Users/yanpengfang/sqyc/ai-charge/charge-api/src/main/java,/Users/yanpengfang/sqyc/ai-charge/charge-core/src/main/java --class-dirs /Users/yanpengfang/sqyc/ai-charge/charge-api/target/classes,/Users/yanpengfang/sqyc/ai-charge/charge-core/target/classes --remote-host localhost --remote-port 8044 --exec-dir /Users/yanpengfang/Desktop/sq_jacoco
+   ./jacoco.sh --git-work-dir /Users/yanpengfang/test/ai-charge --branch master --tag jacoco_1 
+   --compare-tag jacoco_3 --report-dir /Users/yanpengfang/Desktop/sq_jacoco/coveragereport 
+   --source-dirs /Users/yanpengfang/test/ai-charge/charge-api/src/main/java,
+   /Users/yanpengfang/test/ai-charge/charge-core/src/main/java 
+   --class-dirs /Users/yanpengfang/test/ai-charge/charge-api/target/classes,
+   /Users/yanpengfang/test/ai-charge/charge-core/target/classes --remote-host localhost 
+   --remote-port 8044 --exec-dir /Users/yanpengfang/Desktop/test_jacoco
 
 ### 三、代码差分比较分支说明
    #### 1，基于分支的比较
@@ -87,12 +93,12 @@ JaCoCo二次开发基于Git分支差分实现增量代码覆盖率
 
 ### 四 生成的差分报告展示
 这步是用 JaCoCo 开放的 API 和改造后的 JaCoCo 来实现的，根据前两步获取到的 class 和差异方法信息，用改造后的 JaCoCo 去解析 exec 文件，使它按照我们的覆盖率模型，只生成增量代码部分的覆盖率报告。 生成报告的大致流程如图：
-![图片](https://inside-git.01zhuanche.com/component/sq-jacoco/blob/master/jacoco_archive3.jpeg)
+![图片](https://github.com/fang-yan-peng/diff-jacoco/blob/master/jacoco_archive3.jpeg)
 
 通过率概览：
 
-![图片](https://inside-git.01zhuanche.com/component/sq-jacoco/blob/master/report1.png)
+![图片](https://github.com/fang-yan-peng/diff-jacoco/blob/master/report1.png)
 
 覆盖的代码显示为绿色, 未覆盖的代码显示为红色, 白色的代码是没有发生更改的。
 
-![图片](https://inside-git.01zhuanche.com/component/sq-jacoco/blob/master/report2.png)
+![图片](https://github.com/fang-yan-peng/diff-jacoco/blob/master/report2.png)
