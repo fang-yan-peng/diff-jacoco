@@ -3,6 +3,7 @@ package org.jacoco.core.data;
 import org.jacoco.core.analysis.IClassCoverage;
 import org.jacoco.core.analysis.ICounter;
 import org.jacoco.core.analysis.IMethodCoverage;
+import org.jacoco.core.analysis.IPackageCoverage;
 import org.jacoco.core.internal.analysis.CounterImpl;
 
 /**
@@ -13,14 +14,16 @@ import org.jacoco.core.internal.analysis.CounterImpl;
 public class MethodCoverPair {
     private String methodName;
     private String md5;
+    private IPackageCoverage packageCoverage;
     private IClassCoverage classCoverage;
     private IMethodCoverage methodCoverage;
     private double coverageRate;
 
-    public MethodCoverPair(String methodName, String md5,
+    public MethodCoverPair(String methodName, String md5, IPackageCoverage packageCoverage,
             IClassCoverage classCoverage, IMethodCoverage methodCoverage) {
         this.methodName = methodName;
         this.md5 = md5;
+        this.packageCoverage = packageCoverage;
         this.classCoverage = classCoverage;
         this.methodCoverage = methodCoverage;
         this.coverageRate = methodCoverage.getMethodCounter().getCoveredRatio();
@@ -66,7 +69,19 @@ public class MethodCoverPair {
         this.methodName = methodName;
     }
 
+    public IPackageCoverage getPackageCoverage() {
+        return packageCoverage;
+    }
+
+    public void setPackageCoverage(IPackageCoverage packageCoverage) {
+        this.packageCoverage = packageCoverage;
+    }
+
     public void updateCoverCounter(int covered) {
+        ICounter packageCounter = packageCoverage.getInstructionCounter();
+        if (packageCounter instanceof CounterImpl) {
+            ((CounterImpl) packageCounter).updateCover(covered);
+        }
         ICounter classCounter = classCoverage.getInstructionCounter();
         if (classCounter instanceof CounterImpl) {
             ((CounterImpl) classCounter).updateCover(covered);

@@ -52,6 +52,8 @@ public class CoverageBuilder implements ICoverageVisitor {
 
     private static Map<String, ISourceFileCoverage> sourcefiles;
 
+    private static Map<String, IPackageCoverage> packages;
+
     public static Map<String, ClassInfo> classInfos;
 
     public static volatile CoverageRecordDao coverageRecordDao;
@@ -89,6 +91,7 @@ public class CoverageBuilder implements ICoverageVisitor {
     public CoverageBuilder() {
         classes = new HashMap<>();
         sourcefiles = new HashMap<>();
+        packages = new HashMap<>();
         classInfos = null;
     }
 
@@ -100,6 +103,7 @@ public class CoverageBuilder implements ICoverageVisitor {
     public CoverageBuilder(String gitPath, String branchName) {
         classes = new HashMap<>();
         sourcefiles = new HashMap<>();
+        packages = new HashMap<>();
         classInfos = converToMap(CodeDiff.diffBranchToBranch(gitPath, branchName, CodeDiff.MASTER));
 
     }
@@ -118,6 +122,7 @@ public class CoverageBuilder implements ICoverageVisitor {
     public CoverageBuilder(String gitPath, String newBranchName, String oldBranchName) {
         classes = new HashMap<>();
         sourcefiles = new HashMap<>();
+        packages = new HashMap<>();
         classInfos = converToMap(CodeDiff.diffBranchToBranch(gitPath, newBranchName, oldBranchName));
     }
 
@@ -131,6 +136,7 @@ public class CoverageBuilder implements ICoverageVisitor {
     public CoverageBuilder(String gitPath, String branchName, String newTag, String oldTag) {
         classes = new HashMap<>();
         sourcefiles = new HashMap<>();
+        packages = new HashMap<>();
         classInfos = converToMap(CodeDiff.diffTagToTag(gitPath, branchName, newTag, oldTag));
 
     }
@@ -239,6 +245,12 @@ public class CoverageBuilder implements ICoverageVisitor {
             return null;
         }
         return new MethodCoverPair(methodInfo.getMethodName(),
-                methodInfo.md5, classCoverage, belongMethodCoverage);
+                methodInfo.md5, packages.get(classCoverage.getPackageName()), classCoverage, belongMethodCoverage);
+    }
+
+    public static void addPackageCoverage(String packageName, IPackageCoverage packageCoverage) {
+        if (packages != null) {
+            packages.put(packageName, packageCoverage);
+        }
     }
 }
