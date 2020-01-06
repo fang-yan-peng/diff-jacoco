@@ -16,14 +16,17 @@ import static org.jacoco.core.internal.diff.ASTGenerator.MD5Encode;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.ICounter;
 import org.jacoco.core.analysis.ILine;
 import org.jacoco.core.analysis.ISourceNode;
 import org.jacoco.core.dao.CoverageDto;
+import org.jacoco.core.dao.CoverageRateDto;
 import org.jacoco.core.data.MethodCoverPair;
 import org.jacoco.core.internal.analysis.SourceFileCoverageImpl;
 import org.jacoco.core.internal.diff.ClassInfo;
@@ -82,14 +85,15 @@ final class SourceHighlighter {
         classPath = classPath.replaceAll("/", ".");
         String line;
         int nr = 0;
+        Set<String> hasRecord = new HashSet<>();
         while ((line = lineBuffer.readLine()) != null) {
             nr++;
-            renderCodeLine(pre, line, source.getLine(nr), nr, classPath);
+            renderCodeLine(pre, line, source.getLine(nr), nr, classPath, hasRecord);
         }
     }
 
     private void renderCodeLine(final HTMLElement pre, final String linesrc,
-            final ILine line, final int lineNr, final String classPath) throws IOException {
+            final ILine line, final int lineNr, final String classPath, Set<String> hasRecord) throws IOException {
         if (CoverageBuilder.classInfos == null || CoverageBuilder.classInfos.isEmpty()) {
             //	全量覆盖
             highlight(pre, line, lineNr, null).text(linesrc);
@@ -130,6 +134,18 @@ final class SourceHighlighter {
                                     linesrc,
                                     pair.getMd5(),
                                     MD5Encode(linesrc), type);
+                            String uniqueKey = classPath + "_" + pair.getMethodName();
+                            if (!hasRecord.contains(uniqueKey)) {
+                                CoverageRateDto rateDto = new CoverageRateDto(CoverageBuilder.project,
+                                        classPath,
+                                        pair.getMethodName(), pair.getMethodCovered());
+                                try {
+                                    CoverageBuilder.coverageRateRecordDao.addOrUpdate(rateDto);
+                                    hasRecord.add(uniqueKey);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
                             try {
                                 CoverageBuilder.coverageRecordDao.addOrUpdate(dto);
                             } catch (Exception e) {
@@ -140,13 +156,26 @@ final class SourceHighlighter {
                         String type = CoverageBuilder.coverageRecordDao.getType(CoverageBuilder.project,
                                 classPath, pair.getMd5(), MD5Encode(linesrc));
                         if (type == null) { //如果不存在，有可能方法修改了，需要删除以前的记录
-                            //@todo 优化一个方法只删除一次
-                            CoverageBuilder.coverageRecordDao.deletePreRecord(
-                                    CoverageBuilder.project, classPath, pair.getMethodName());
-                        } else if (Styles.FULLY_COVERED.equals(type)
-                                || Styles.PARTLY_COVERED.equals(type)) {
-                            //修改覆盖率，覆盖率修改后不准了，因为原框架是按照字节码指令统计的，现在是按照源码的行数统计的。
-                            pair.updateCoverCounter();
+                            String uniqueKey = classPath + "_" + pair.getMethodName();
+                            if (!hasRecord.contains(uniqueKey)) {
+                                CoverageBuilder.coverageRecordDao.deletePreRecord(
+                                        CoverageBuilder.project, classPath, pair.getMethodName());
+                                CoverageBuilder.coverageRateRecordDao.deletePreRateRecord
+                                        (CoverageBuilder.project, classPath, pair.getMethodName());
+                                hasRecord.add(uniqueKey);
+                            }
+                        } else {
+                            //修改覆盖率。
+                            String uniqueKey = classPath + "_" + pair.getMethodName();
+                            if (!hasRecord.contains(uniqueKey)) {
+                                Integer covered = CoverageBuilder.coverageRateRecordDao.getCovered(
+                                        CoverageBuilder.project, classPath, pair.getMethodName());
+                                if (covered != null) {
+                                    pair.updateCoverCounter(covered);
+                                }
+                                hasRecord.add(uniqueKey);
+                            }
+
                         }
                         boolean flag = false;
                         List<int[]> addLines = classInfo.getAddLines();

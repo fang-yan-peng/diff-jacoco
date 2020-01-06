@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.jacoco.core.dao.CoverageRateRecordDao;
 import org.jacoco.core.dao.CoverageRecordDao;
 import org.jacoco.core.data.MethodCoverPair;
 import org.jacoco.core.internal.analysis.BundleCoverageImpl;
@@ -54,6 +55,7 @@ public class CoverageBuilder implements ICoverageVisitor {
     public static Map<String, ClassInfo> classInfos;
 
     public static volatile CoverageRecordDao coverageRecordDao;
+    public static volatile CoverageRateRecordDao coverageRateRecordDao;
 
     public static String project;
 
@@ -73,6 +75,7 @@ public class CoverageBuilder implements ICoverageVisitor {
                     config.setPoolName("JacocoCoverage");
                     Mango mango = Mango.newInstance(new HikariDataSource(config));
                     coverageRecordDao = mango.create(CoverageRecordDao.class);
+                    coverageRateRecordDao = mango.create(CoverageRateRecordDao.class);
                     project = title;
                 }
             }

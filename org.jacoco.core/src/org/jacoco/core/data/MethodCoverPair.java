@@ -66,14 +66,19 @@ public class MethodCoverPair {
         this.methodName = methodName;
     }
 
-    public void updateCoverCounter() {
+    public void updateCoverCounter(int covered) {
         ICounter classCounter = classCoverage.getInstructionCounter();
         if (classCounter instanceof CounterImpl) {
-            ((CounterImpl) classCounter).updateCover(1);
+            ((CounterImpl) classCounter).updateCover(covered);
         }
         ICounter methodCounter = methodCoverage.getInstructionCounter();
         if (methodCounter instanceof CounterImpl) {
-            ((CounterImpl) methodCounter).updateCover(1);
+            ((CounterImpl) methodCounter).updateCover(covered);
         }
+    }
+
+    public int getMethodCovered() {
+        ICounter methodCounter = methodCoverage.getInstructionCounter();
+        return methodCounter.getCoveredCount();
     }
 }

@@ -30,6 +30,29 @@ JaCoCo二次开发基于Git分支差分实现增量代码覆盖率
   自行打包。注意事项IDE下载后，在IDE中执行maven打包命令可能不成功。建议在命令行中执行maven打包命令。打包成功后，会在 JacocoPlus/org.jacoco
   .startup/target目录下生成org.jacoco.startup-0.8.4.tar.gz。解压后会有三个目录，分别是bin、lib和conf。其中conf/jacoco.conf文件是jacoco运行所需要的配置信息，如数据库的jdbcUrl、用户名密码和堆栈大小等。
   
+  ##### 2，在配置的数据库中新建两张表用于存放代码测试覆盖率信息
+  create table coverage_record(
+  id bigint primary key auto_increment,
+  project varchar(64),
+  class_name varchar(128),
+  method varchar(64),
+  line varchar(128),
+  method_md5 char(32),
+  line_md5 char(32),
+  type char(2),
+  unique key p_c_m_l(project, class_name, method_md5, line_md5),
+  key p_c_m(project, class_name, method)
+  );
+  
+  create table coverage_rate_record(
+  id bigint primary key auto_increment,
+  project varchar(64),
+  class_name varchar(128),
+  method varchar(64),
+  covered int,
+  unique key p_c_m(project, class_name, method)
+  );
+  
   ##### 2，执行bin目录下jacoco.sh，以tag比较为例
    ./jacoco.sh --git-work-dir /Users/yanpengfang/sqyc/ai-charge --branch master --tag jacoco_1 
    --compare-tag jacoco_3 --report-dir /Users/yanpengfang/Desktop/sq_jacoco/coveragereport --source-dirs /Users/yanpengfang/sqyc/ai-charge/charge-api/src/main/java,/Users/yanpengfang/sqyc/ai-charge/charge-core/src/main/java --class-dirs /Users/yanpengfang/sqyc/ai-charge/charge-api/target/classes,/Users/yanpengfang/sqyc/ai-charge/charge-core/target/classes --remote-host localhost --remote-port 8044 --exec-dir /Users/yanpengfang/Desktop/sq_jacoco
