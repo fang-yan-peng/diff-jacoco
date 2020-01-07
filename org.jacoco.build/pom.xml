@@ -93,10 +93,7 @@
     <module>../org.jacoco.cli</module>
     <module>../org.jacoco.startup</module>
     <module>../jacoco-maven-plugin</module>
-
     <module>../org.jacoco.tests</module>
-
-    <module>../org.jacoco.doc</module>
     <module>../jacoco</module>
   </modules>
 
