@@ -102,6 +102,6 @@ public class ClassInfo {
     }
 
     public void setMethodInfos(List<MethodInfo> methodInfos) {
-        this.methodInfos = methodInfos.stream().collect(Collectors.toMap(MethodInfo::getMethodName, m -> m));
+        this.methodInfos = methodInfos.stream().collect(Collectors.toMap(MethodInfo::getMethodName, m -> m,(key1,key2)->key2));
     }
 }
